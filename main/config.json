@@ -1,0 +1,68 @@
+{
+  "log": {
+    "loglevel": "info"
+  },
+  "inbounds": [
+    {
+      "port": 1080,
+      "listen": "127.0.0.1",
+      "protocol": "socks",
+      "sniffing": {
+        "enabled": true,
+        "destOverride": [
+          "http",
+          "tls"
+        ]
+      },
+      "settings": {
+        "auth": "noauth",
+        "udp": true,
+        "ip": "127.0.0.1"
+      }
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "forward",
+      "tag": "17-alps-mgmt",
+      "domainStrategy": "UseIPv4",
+      "settings": {
+        "domainStrategy": "UseIPv4",
+        "redirect": "192.168.100.222:3128",
+        "userLevel": 1
+      }
+    },
+    {
+      "protocol": "http",
+      "tag": "proxy-test",
+      "settings": {
+        "servers": [
+          {
+            "address": "192.168.100.222",
+            "port": 3128
+          }
+        ],
+        "allowTransparent": true
+      }
+    }
+  ],
+  "routing": {
+    "domainStrategy": "IPOnDemand",
+    "rules": [
+      {
+        "type": "field",
+        "ip": [
+          "10.0.0.0/8",
+          "192.168.0.0/16"
+        ],
+        "network": "tcp",
+        "outboundTag": "17-alps-mgmt"
+      },
+      {
+        "type": "field",
+        "outboundTag": "proxy-test",
+        "network": "udp,tcp"
+      }
+    ]
+  }
+}

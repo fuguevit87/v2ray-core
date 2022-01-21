@@ -35,6 +35,7 @@ var (
 	outboundConfigLoader = loader.NewJSONConfigLoader(loader.ConfigCreatorCache{
 		"blackhole":   func() interface{} { return new(BlackholeConfig) },
 		"freedom":     func() interface{} { return new(FreedomConfig) },
+		"forward":     func() interface{} { return new(ForwardConfig) },
 		"http":        func() interface{} { return new(HTTPClientConfig) },
 		"shadowsocks": func() interface{} { return new(ShadowsocksClientConfig) },
 		"socks":       func() interface{} { return new(SocksClientConfig) },
