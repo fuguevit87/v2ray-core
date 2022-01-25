@@ -108,6 +108,15 @@ func (h *Handler) Process(ctx context.Context, link *transport.Link, dialer inte
 		return newError("target not specified.")
 	}
 	destination := outbound.Target
+	if h.config.DestinationOverride != nil {
+		server := h.config.DestinationOverride.Server
+		if isValidAddress(server.Address) {
+			destination.Address = server.Address.AsAddress()
+		}
+		if server.Port != 0 {
+			destination.Port = net.Port(server.Port)
+		}
+	}
 	newError("opening connection to ", destination).WriteToLog(session.ExportIDToError(ctx))
 
 	input := link.Reader
@@ -154,7 +163,7 @@ func (h *Handler) Process(ctx context.Context, link *transport.Link, dialer inte
 			writer = &buf.SequentialWriter{Writer: conn}
 		}
 
-		if err := buf.Copy(input, writer, buf.UpdateActivity(timer)); err != nil {
+		if err := copy(input, writer, outbound.Target.NetAddr()); err != nil {
 			return newError("failed to process request").Base(err)
 		}
 
